@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema(
       match: [
         /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
         'Please fill a valid email address'
-      ],
+      ]
     },
     password: {
       type: String,
@@ -21,18 +21,15 @@ const userSchema = new mongoose.Schema(
       required: [true, 'Username is required'],
       unique: [true, 'Username already exists'],
       minlength: [3, 'Username must be at least 3 characters long'],
-      match: [
-        /^[a-z-Z0-9]+$/,
-        'Username must contain only letters and numbers'
-      ]
+      match: [/^[a-z-Z0-9]+$/, 'Username must contain only letters and numbers']
     },
     avatar: {
       type: String
     }
   },
-{
-  timestamps: true
-}
+  {
+    timestamps: true
+  }
 );
 
 userSchema.pre('save', function saveUser(next) {

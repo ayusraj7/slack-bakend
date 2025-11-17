@@ -1,4 +1,9 @@
+import bcrypt from 'bcryptjs';
+import { StatusCodes } from 'http-status-codes';
+
 import userRepository from '../repositories/userRepository.js';
+import { createJWT } from '../utils/common/authUtils.js';
+import ClientError from '../utils/errors/ClientError.js';
 import ValidationError from '../utils/errors/validationError.js';
 
 export const signupService = async (data) => {
@@ -28,10 +33,7 @@ export const signupService = async (data) => {
         message = 'Username already exists';
       }
 
-      throw new ValidationError(
-        { error: [message] },
-        message
-      );
+      throw new ValidationError({ error: [message] }, message);
     }
 
     // Re-throw any unhandled errors
@@ -39,3 +41,34 @@ export const signupService = async (data) => {
   }
 };
 
+export const signInService = async (data) => {
+  try {
+    const user = await userRepository.getByEmail(data.email);
+    if (!user) {
+      throw new ClientError({
+        explanation: 'Invalid data sent from the client',
+        message: 'No registered user found with this email',
+        statusCode: StatusCodes.NOT_FOUND
+      });
+    }
+    // match the incoming password with the hashed password
+    const isMatch = await bcrypt.compareSync(data.password, user.password);
+    if (!isMatch) {
+      throw new ClientError({
+        explanation: 'Invalid data sent from the client',
+        message: 'Incorrect password',
+        statusCode: StatusCodes.BAD_REQUEST
+      });
+    }
+    return {
+      username: user.username,
+      email: user.email,
+      avatar: user.avatar,
+      id: user._id,
+      token: createJWT({ id: user._id, email: user.email })
+    };
+  } catch (error) {
+    console.log('User service error', error);
+    throw error;
+  }
+};
