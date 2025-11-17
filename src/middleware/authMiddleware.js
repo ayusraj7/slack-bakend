@@ -3,7 +3,10 @@ import jwt from 'jsonwebtoken';
 
 import { JWT_SECRET } from '../config/serverConfig';
 import userRepository from '../repositories/userRepository';
-import { customErrorResponse, InternalServerErrorResponse } from '../utils/common/responseObjects';
+import {
+  customErrorResponse,
+  InternalServerErrorResponse
+} from '../utils/common/responseObjects';
 
 export const isAuthenticated = async (req, res, next) => {
   try {
@@ -28,22 +31,20 @@ export const isAuthenticated = async (req, res, next) => {
     }
 
     const user = await userRepository.getById(response.id);
-    req.user = user.id; 
+    req.user = user.id;
     next();
-
-
   } catch (error) {
     console.log('auth middleware error', error);
-    if(error.name === 'JsonWebTokenError') {
-        return res.status(StatusCodes.FORBIDDEN).json(
-          customErrorResponse({
-            explanation: 'Invalid data sent from the client',
-            message: 'Invalid auth token provided'
-          })
-        );
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(StatusCodes.FORBIDDEN).json(
+        customErrorResponse({
+          explanation: 'Invalid data sent from the client',
+          message: 'Invalid auth token provided'
+        })
+      );
     }
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(
-      InternalServerErrorResponse(error)
-    );
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json(InternalServerErrorResponse(error));
   }
 };
