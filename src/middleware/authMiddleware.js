@@ -1,16 +1,20 @@
 import { StatusCodes } from 'http-status-codes';
 import jwt from 'jsonwebtoken';
 
-import { JWT_SECRET } from '../config/serverConfig';
-import userRepository from '../repositories/userRepository';
+import { JWT_SECRET } from '../config/serverConfig.js';
+import userRepository from '../repositories/userRepository.js';
 import {
   customErrorResponse,
   InternalServerErrorResponse
-} from '../utils/common/responseObjects';
-
+} from '../utils/common/responseObjects.js';
 export const isAuthenticated = async (req, res, next) => {
   try {
-    const token = req.headers('x-access-token');
+    const authHeader = req.headers['authorization'];
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return next(new Error('Authorization header missing or malformed'));
+    }
+    const token = authHeader.split(' ')[1];
     if (!token) {
       return res.status(StatusCodes.FORBIDDEN).json(
         customErrorResponse({

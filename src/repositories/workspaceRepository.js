@@ -35,8 +35,8 @@ const workspaceRepository = {
     return workspaceData;
   },
   addMemberToWorkspace: async function (workspaceId, memberId, role) {
-    const workspace = await workspace.findById(workspaceId);
-    if (!workspace) {
+    const workspaceData = await workspace.findById(workspaceId);
+    if (!workspaceData) {
       throw new ClientError({
         explanation: 'Invalid data sent from the client',
         message: 'Workspace not found.',
@@ -52,7 +52,7 @@ const workspaceRepository = {
       });
     }
 
-    const isMemberAlreadyPartyOfWorkspace = workspace.members.find(
+    const isMemberAlreadyPartyOfWorkspace = workspaceData.members.find(
       (member) => member.memberId === memberId
     );
     if (isMemberAlreadyPartyOfWorkspace) {
@@ -62,15 +62,15 @@ const workspaceRepository = {
         statusCode: StatusCodes.FORBIDDEN
       });
     }
-    workspace.members.push({ memberId, role });
-    await workspace.save();
-    return workspace;
+    workspaceData.members.push({ memberId, role });
+    await workspaceData.save();
+    return workspaceData;
   },
   addChannelToWorkspace: async function (workspaceId, channelName) {
-    const workspace = await workspace
+    const workspaceData = await workspace
       .findById(workspaceId)
       .populate('channels');
-    if (!workspace) {
+    if (!workspaceData) {
       throw new ClientError({
         explanation: 'Invalid data sent from the client',
         message: 'Workspace not found.',
@@ -78,7 +78,7 @@ const workspaceRepository = {
       });
     }
 
-    const isChannelAlreadyPartOfWorkspace = workspace.channels.find(
+    const isChannelAlreadyPartOfWorkspace = workspaceData.channels.find(
       (channel) => channel.name === channelName
     );
     if (isChannelAlreadyPartOfWorkspace) {
@@ -93,9 +93,9 @@ const workspaceRepository = {
       name: channelName
     });
 
-    workspace.channels.push(channel);
-    await workspace.save();
-    return workspace;
+    workspaceData.channels.push(channel);
+    await workspaceData.save();
+    return workspaceData;
   },
   fetchAllWorkspaceByMemberId: async function (memberId) {
     const workspaces = await workspace
