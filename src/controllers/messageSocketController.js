@@ -4,9 +4,13 @@ import { NEW_MESSAGE_EVENT, NEW_MESSAGE_RECEIVED_EVENT } from '../utils/common/e
 export default function messageHandlers(io, socket) {
     console.log('messageHandlers called');
     socket.on(NEW_MESSAGE_EVENT,async (data, cb)=> {
-        console.log('data', data);
-        const messageResponse = await createMessageService(data);
-        socket.broadcast.emit(NEW_MESSAGE_RECEIVED_EVENT, messageResponse);
+        // Parse string data to object if needed
+        const messageData = typeof data === 'string' ? JSON.parse(data) : data;
+        const {channelId} = messageData;
+        const messageResponse = await createMessageService(messageData);
+
+        io.to(channelId).emit(NEW_MESSAGE_RECEIVED_EVENT, messageResponse);
+        //socket.broadcast.emit(NEW_MESSAGE_RECEIVED_EVENT, messageResponse);
         cb({
             success: true,
             message: 'Message created successfully',

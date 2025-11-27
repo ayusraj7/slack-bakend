@@ -47,8 +47,6 @@ export const getMessagesService = async (
 
 export const createMessageService = async (message) => {
   try {
-    console.log('message', message);
-    console.log('typeof',typeof message)
     const response = await messageRepository.create(message);
     return response;
   } catch (error) {

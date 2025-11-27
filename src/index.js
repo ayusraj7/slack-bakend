@@ -7,6 +7,7 @@ import { PORT } from './config/serverConfig.js';
 import apiRouter from './routes/apiRoutes.js';
 import { Server } from 'socket.io';
 import { createServer } from 'http';
+import channelSocketHandlers from './controllers/channelSocketController.js';
 import messageHandlers from './controllers/messageSocketController.js';
 
 const app = express();
@@ -16,6 +17,7 @@ const io = new Server(server);
 io.on('connection', (socket) => {
   console.log('socket connected',socket.id);
   messageHandlers(io, socket);
+  channelSocketHandlers(io, socket);
   //broadcast helps to emit from server to all the clients who are connected to the server.
 });
 
